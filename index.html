@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanji Adventure - Leer Japans!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: #fdf2f8; 
+            color: #4b2c20;
+            overflow-x: hidden;
+        }
+        .kanji-font {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        /* Stijl voor de teksten naast de kat - gelijk aan de titel */
+        .lucky-cat-text {
+            font-family: 'Fredoka One', cursive;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1));
+            writing-mode: vertical-rl; /* Verticaal schrijven */
+            text-orientation: upright;
+        }
+        .kawaii-card {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 10px 0 #db2777;
+        }
+        .kawaii-card:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+        .kawaii-card:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 0 #db2777;
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: pop 0.6s ease-out forwards;
+        }
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        /* Lucky Cat Animation */
+        .lucky-cat-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-top: 3rem; 
+        }
+        .cat-bg-circle {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: #fef3c7; 
+            border-radius: 50%;
+            z-index: 0;
+            border: 4px dashed #fbbf24;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+        }
+        .waving-arm {
+            transform-origin: 145px 120px;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-35deg); }
+        }
+        .character-sprite {
+            z-index: 10;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+        }
+
+        .hidden-panel {
+            display: none;
+        }
+        .active-panel {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="text-center my-8">
+        <h1 class="text-4xl md:text-6xl text-pink-500 drop-shadow-lg mb-2">
+            <span class="kanji-font">漢字</span> Kanji Adventure! <span class="text-2xl md:text-3xl text-pink-300 kanji-font">かんじ</span>
+        </h1>
+        <p class="text-xl text-purple-600">Leer Kanji met Pict-o-Graphix stijl ✨</p>
+    </header>
+
+    <!-- Game Container -->
+    <main id="game-container" class="w-full max-w-4xl bg-white rounded-3xl p-6 md:p-10 shadow-2xl relative border-4 border-pink-200">
+        
+        <!-- Welcome Screen -->
+        <div id="screen-welcome" class="active-panel text-center">
+            <div class="lucky-cat-container">
+                <div class="cat-bg-circle"></div>
+
+                <!-- Links: Maneki Neko in Kanji (Verticaal & Hoog) -->
+                <div class="lucky-cat-text text-4xl md:text-5xl text-pink-500 hidden lg:block z-10 -translate-y-16">
+                    招き猫
+                </div>
+                
+                <!-- Center: Klassieke Maneki Neko -->
+                <svg class="w-64 h-64 character-sprite" viewBox="0 0 200 200">
+                    <!-- Body Base -->
+                    <path d="M50 140 Q50 60 100 60 Q150 60 150 140 Q150 190 100 190 Q50 190 50 140" fill="white" stroke="#333" stroke-width="4"/>
+                    
+                    <!-- Ears -->
+                    <path d="M60 75 L40 35 L85 62 Z" fill="white" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M140 75 L160 35 L115 62 Z" fill="white" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M52 65 L46 45 L65 58 Z" fill="#ff99bb"/> <!-- Inner Ear L -->
+                    <path d="M148 65 L154 45 L135 58 Z" fill="#ff99bb"/> <!-- Inner Ear R -->
+
+                    <!-- Facial Features -->
+                    <!-- Eyes -->
+                    <path d="M70 105 Q80 95 90 105" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M110 105 Q120 95 130 105" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Nose & Mouth -->
+                    <circle cx="100" cy="115" r="3" fill="#ff6666"/>
+                    <path d="M90 125 Q100 135 110 125" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Whiskers -->
+                    <line x1="60" y1="120" x2="40" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="130" x2="40" y2="135" stroke="#333" stroke-width="2"/>
+                    <line x1="140" y1="120" x2="160" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="140" y1="130" x2="160" y2="135" stroke="#333" stroke-width="2"/>
+
+                    <!-- Belly Patch & Coin -->
+                    <circle cx="100" cy="145" r="35" fill="#fff" stroke="#eee" stroke-width="1"/>
+                    <rect x="85" y="140" width="30" height="40" rx="5" fill="#ffd700" stroke="#b8860b" stroke-width="2"/>
+                    <text x="100" y="165" font-family="Noto Sans JP" font-size="12" text-anchor="middle" fill="#b8860b" font-weight="bold">百万両</text>
+
+                    <!-- Collar & Bell -->
+                    <path d="M60 160 Q100 175 140 160" fill="none" stroke="#cc0000" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="100" cy="172" r="10" fill="#ffd700" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="175" x2="100" y2="180" stroke="#333" stroke-width="2"/>
+
+                    <!-- Left Arm (Holding Coin/Static) -->
+                    <path d="M55 130 Q40 160 70 180" fill="none" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M55 130 Q40 160 70 180" fill="none" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+
+                    <!-- Right Arm (Waving) -->
+                    <g class="waving-arm">
+                        <path d="M145 120 Q175 80 155 45" fill="white" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="155" cy="45" r="12" fill="white" stroke="#333" stroke-width="4"/>
+                        <path d="M150 45 Q155 52 160 45" fill="none" stroke="#ff99bb" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                </svg>
+
+                <!-- Rechts: Maneki Neko in Hiragana (Verticaal & Hoog) -->
+                <div class="lucky-cat-text text-3xl md:text-4xl text-purple-500 hidden lg:block z-10 -translate-y-16">
+                    まねきねこ
+                </div>
+            </div>
+
+            <!-- Mobiele weergave -->
+            <div class="lg:hidden mb-6 bg-yellow-50 inline-block px-6 py-2 rounded-full border border-yellow-200">
+                <span class="text-2xl lucky-cat-text text-pink-500 mr-4" style="writing-mode: horizontal-tb">招き猫</span>
+                <span class="text-xl lucky-cat-text text-purple-500" style="writing-mode: horizontal-tb">まねきねこ</span>
+            </div>
+
+            <h2 class="text-3xl mb-4 text-orange-500 italic">"Maneki Neko gaat je helpen" 👋</h2>
+            <p class="mb-8 text-lg text-gray-600">Kies een categorie om je avontuur te beginnen!</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
+                <button onclick="startLevel('basic')" class="bg-yellow-400 hover:bg-yellow-500 text-white text-2xl py-5 px-8 rounded-2xl shadow-lg transition transform hover:scale-105">
+                    🌟 Basis Kanji
+                </button>
+                <button onclick="startLevel('days')" class="bg-blue-400 hover:bg-blue-500 text-white text-2xl py-5 px-8 rounded-2xl shadow-lg transition transform hover:scale-105">
+                    📅 Dagen van de Week
+                </button>
+            </div>
+        </div>
+
+        <!-- Level Screen -->
+        <div id="screen-level" class="hidden-panel">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="goHome()" class="text-pink-500 hover:text-pink-700 underline flex items-center font-bold">
+                    ← Terug
+                </button>
+                <div id="score-display" class="bg-pink-100 px-4 py-2 rounded-full text-pink-600 font-bold">
+                    Gezien: <span id="current-count">0</span> / <span id="total-count">0</span>
+                </div>
+            </div>
+
+            <div id="kanji-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kanji Cards -->
+            </div>
+        </div>
+
+        <!-- Detail Modal -->
+        <div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-3xl p-8 max-w-md w-full relative transform scale-90 transition-all duration-300 shadow-2xl overflow-y-auto max-h-[90vh]">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-3xl hover:text-pink-500 transition">&times;</button>
+                <div id="modal-content" class="text-center">
+                    <!-- Dynamic content -->
+                </div>
+                <button onclick="closeModal()" class="mt-8 w-full bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-2xl font-bold shadow-lg text-xl transition transform active:scale-95">Klaar!</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-12 text-center text-gray-500 pb-10">
+        <p>© 2024 Kanji Adventure • Gebaseerd op Kanji Pict-o-Graphix</p>
+    </footer>
+
+    <script>
+        const kanjiData = {
+            basic: [
+                { kanji: '日', display: '日', betekenis: 'Zon / Dag', onyomi: 'ニチ, ジツ', kunyomi: 'ひ, -び', emoji: '☀️', story: 'Een cirkel met een streep werd dit vierkante teken voor de zon.', color: 'bg-orange-100', borderColor: 'border-orange-400' },
+                { kanji: '月', display: '月', betekenis: 'Maan', onyomi: 'ゲツ, ガツ', kunyomi: 'つき', emoji: '🌙', story: 'Zie je de halve maan met de twee streepjes (wolken) erin?', color: 'bg-yellow-50', borderColor: 'border-yellow-400' },
+                { kanji: '火', display: '火', betekenis: 'Vuur', onyomi: 'カ', kunyomi: 'ひ', emoji: '🔥', story: 'Het teken voor vuur lijkt op een vlammend vuurtje met twee vonken aan de zijkant.', color: 'bg-red-100', borderColor: 'border-red-400' },
+                { kanji: '水', display: '水', betekenis: 'Water', onyomi: 'スイ', kunyomi: 'みず', emoji: '💧', story: 'Water met spetterende druppels aan de zijkanten van een stroompje.', color: 'bg-blue-100', borderColor: 'border-blue-400' },
+                { kanji: '木', display: '木', betekenis: 'Boom', onyomi: 'モク, ボク', kunyomi: 'き', emoji: '🌳', story: 'Een stam met takken die naar beneden hangen.', color: 'bg-green-100', borderColor: 'border-green-600' },
+                { kanji: '金', display: '金', betekenis: 'Goud / Geld', onyomi: 'キン', kunyomi: 'かね', emoji: '💰', story: 'Goudstaven die veilig onder een dak liggen opgeslagen.', color: 'bg-yellow-100', borderColor: 'border-yellow-600' },
+                { kanji: '土', display: '土', betekenis: 'Aarde / Grond', onyomi: 'ド', kunyomi: 'つchi', emoji: '🌱', story: 'Een plantje dat uit de zwarte aarde omhoog schiet.', color: 'bg-amber-100', borderColor: 'border-amber-700' },
+                { kanji: '口', display: '口', betekenis: 'Mond', onyomi: 'コウ, ク', kunyomi: 'くち', emoji: '👄', story: 'Een wijd openstaande mond. Makkelijk toch?', color: 'bg-red-50', borderColor: 'border-red-400' },
+                { kanji: '大', display: '大', betekenis: 'Groot', onyomi: 'ダイ, タイ', kunyomi: 'おお-ki', emoji: '👨‍👧‍👦', story: 'Een mens die zijn armen en benen wijd spreidt: "Zo groot!"', color: 'bg-blue-50', borderColor: 'border-blue-400' },
+                { kanji: '犬', display: '犬', betekenis: 'Hond', onyomi: 'ケン', kunyomi: 'いぬ', emoji: '🐶', story: 'Het lijkt op "Groot", maar met een klein stipje voor zijn oortje of staartje.', color: 'bg-amber-100', borderColor: 'border-amber-600' }
+            ],
+            days: [
+                { kanji: '月曜日', display: '月曜日', hiraDisplay: 'げつようび', romajiName: ['Ge', 'tsu', 'yo', 'u', 'bi'], betekenis: 'Maandag', onyomi: 'ゲツ', kunyomi: 'つき', emoji: '🌙', story: 'De week begint met de Maan! (Getsu)', color: 'bg-indigo-50', borderColor: 'border-indigo-400' },
+                { kanji: '火曜日', display: '火曜日', hiraDisplay: 'かようび', romajiName: ['Ka', 'yo', 'u', 'bi'], betekenis: 'Dinsdag', onyomi: 'カ', kunyomi: 'ひ', emoji: '🔥', story: 'Het teken voor vuur (Ka) lijkt op een vlammend vuurtje.', color: 'bg-red-100', borderColor: 'border-red-500' },
+                { kanji: '水曜日', display: '水曜日', hiraDisplay: 'すいようび', romajiName: ['Su', 'i', 'yo', 'u', 'bi'], betekenis: 'Woensdag', onyomi: 'スイ', kunyomi: 'みず', emoji: '💧', story: 'Water (Sui) met spetterende druppels aan de zijkanten.', color: 'bg-blue-100', borderColor: 'border-blue-500' },
+                { kanji: '木曜日', display: '木曜日', hiraDisplay: 'もくようび', romajiName: ['Mo', 'ku', 'yo', 'u', 'bi'], betekenis: 'Donderdag', onyomi: 'モク', kunyomi: 'き', emoji: '🌳', story: 'Boom/Hout (Moku) groeit uit de aarde.', color: 'bg-emerald-50', borderColor: 'border-emerald-600' },
+                { kanji: '金曜日', display: '金曜日', hiraDisplay: 'きんようび', romajiName: ['Ki', 'n', 'yo', 'u', 'bi'], betekenis: 'Vrijdag', onyomi: 'キン', kunyomi: 'かね', emoji: '💰', story: 'Goud/Metaal (Kin). Zie de goudstaven onder het dak!', color: 'bg-yellow-100', borderColor: 'border-yellow-600' },
+                { kanji: '土曜日', display: '土曜日', hiraDisplay: 'どようび', romajiName: ['Do', 'yo', 'u', 'bi'], betekenis: 'Zaterdag', onyomi: 'ド', kunyomi: 'つchi', emoji: '🌱', story: 'Aarde/Grond (Do). Een plantje dat uit de grond komt.', color: 'bg-amber-50', borderColor: 'border-amber-700' },
+                { kanji: '日曜日', display: '日曜日', hiraDisplay: 'にちようび', romajiName: ['Ni', 'chi', 'yo', 'u', 'bi'], betekenis: 'Zondag', onyomi: 'ニチ', kunyomi: 'ひ', emoji: '☀️', story: 'Zon-dag (Nichi). De cirkel is weer rond!', color: 'bg-orange-50', borderColor: 'border-orange-500' }
+            ]
+        };
+
+        const seenKanji = new Set();
+        let revealIndex = 0;
+
+        function startLevel(levelId) {
+            document.getElementById('screen-welcome').classList.replace('active-panel', 'hidden-panel');
+            document.getElementById('screen-level').classList.replace('hidden-panel', 'active-panel');
+
+            const container = document.getElementById('kanji-display');
+            container.innerHTML = '';
+            
+            const data = kanjiData[levelId];
+            document.getElementById('total-count').innerText = data.length;
+            document.getElementById('current-count').innerText = '0';
+            seenKanji.clear();
+
+            data.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = `kawaii-card ${item.color} border-4 ${item.borderColor} rounded-2xl p-6 text-center relative overflow-hidden`;
+                card.onclick = (e) => showDetail(item, e);
+                
+                const fontSizeClass = item.display.length > 1 ? 'text-4xl' : 'text-6xl';
+
+                card.innerHTML = `
+                    <div class="text-4xl mb-2">${item.emoji}</div>
+                    <div class="kanji-font ${fontSizeClass} font-bold mb-2 text-gray-800 break-all">${item.display}</div>
+                    <div class="text-lg font-bold text-gray-600">${item.betekenis}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function goHome() {
+            document.getElementById('screen-level').classList.replace('active-panel', 'hidden-panel');
+            document.getElementById('screen-welcome').classList.replace('hidden-panel', 'active-panel');
+        }
+
+        function showDetail(item, event) {
+            createParticles(event.clientX, event.clientY);
+            
+            seenKanji.add(item.kanji);
+            document.getElementById('current-count').innerText = seenKanji.size;
+
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            
+            revealIndex = 0; 
+
+            let detailHtml = `
+                <div class="text-6xl mb-2">${item.emoji}</div>
+                <h3 class="text-6xl kanji-font font-bold text-pink-500 mb-2">${item.display}</h3>
+                <p class="text-xl font-bold mb-4 text-purple-600 uppercase tracking-tight">${item.betekenis}</p>
+            `;
+
+            if (item.hiraDisplay) {
+                detailHtml += `
+                    <div class="mb-6 bg-purple-50 p-4 rounded-2xl border-2 border-purple-100">
+                        <div class="mb-3">
+                            <p class="text-xs text-purple-400 font-bold uppercase mb-1 italic">Hiragana</p>
+                            <p class="text-3xl kanji-font font-bold text-purple-800">${item.hiraDisplay}</p>
+                        </div>
+                        <div class="border-t border-purple-200 pt-3">
+                            <p class="text-xs text-purple-400 font-bold uppercase mb-2 italic">Controleer uitspraak (Romaji)</p>
+                            <div id="romaji-reveal" class="text-2xl font-bold text-gray-700 min-h-[1.5em] flex justify-center items-center tracking-widest uppercase">
+                                <!-- Romaji wordt hier onthuld -->
+                            </div>
+                            <button id="reveal-btn" onclick="revealNextRomaji('${item.romajiName.join('|')}', '${item.story.replace(/'/g, "\\'")}')" class="mt-4 w-full bg-white border-2 border-purple-300 text-purple-600 px-6 py-2 rounded-xl font-bold hover:bg-purple-100 transition shadow-sm active:scale-95 leading-snug">
+                                Klik om uitspraak te onthullen ✨
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                detailHtml += `
+                    <div id="story-container" class="bg-yellow-100 p-5 rounded-2xl border-2 border-yellow-400 text-center relative mb-6">
+                        <p class="text-black text-lg italic leading-snug">"${item.story}"</p>
+                    </div>
+                `;
+            }
+
+            detailHtml += `
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-2xl border-2 border-blue-100">
+                        <p class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Onyomi</p>
+                        <p class="text-lg font-bold text-blue-700">${item.onyomi}</p>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-2xl border-2 border-green-100">
+                        <p class="text-[10px] text-green-400 font-bold uppercase tracking-wider">Kunyomi</p>
+                        <p class="text-lg font-bold text-green-700">${item.kunyomi}</p>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = detailHtml;
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.children[0].classList.replace('scale-90', 'scale-100'), 10);
+        }
+
+        function revealNextRomaji(fullRomajiStr, storyText) {
+            const romajiArray = fullRomajiStr.split('|');
+            const display = document.getElementById('romaji-reveal');
+            
+            if (revealIndex < romajiArray.length) {
+                const span = document.createElement('span');
+                span.innerText = romajiArray[revealIndex];
+                span.className = 'inline-block animate-bounce text-purple-600 px-0.5';
+                display.appendChild(span);
+                revealIndex++;
+                
+                createParticles(window.innerWidth/2, window.innerHeight/2);
+
+                if (revealIndex === romajiArray.length) {
+                    const btn = document.getElementById('reveal-btn');
+                    btn.innerHTML = `<span class="text-black text-lg block py-2">"${storyText}"</span>`;
+                    btn.classList.remove('text-purple-600', 'border-purple-300', 'bg-white');
+                    btn.classList.add('bg-yellow-100', 'border-yellow-400', 'normal-case');
+                    btn.disabled = true;
+                }
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.children[0].classList.replace('scale-100', 'scale-90');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function createParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                p.innerHTML = ['✨', '🌸', '⭐', '🌈', '🍭'][Math.floor(Math.random() * 5)];
+                p.style.fontSize = Math.random() * 20 + 15 + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 100 + 40;
+                p.animate([
+                    { transform: `translate(0, 0) rotate(0deg) scale(1)`, opacity: 1 },
+                    { transform: `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px) rotate(${Math.random() * 360}deg) scale(0)`, opacity: 0 }
+                ], { duration: 800, easing: 'cubic-bezier(0, .9, .57, 1)' });
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 800);
+            }
+        }
+    </script>
+</body>
+</html>
